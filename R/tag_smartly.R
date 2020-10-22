@@ -1,3 +1,7 @@
+tag_smart <- function(){
+  
+}
+
 tag_learn <- function(doc, topics){
   keywords <- lapply(doc, function(x){
     gsub(" ", "_", litsearchr::extract_terms(x, method="fakerake", min_freq = 1, min_n=2))
