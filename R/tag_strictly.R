@@ -6,7 +6,7 @@
 #' @param scheme a dictionary object or list containing an ontology or set of terms 
 #' @param enable_stemming logical: if TRUE, interpret lemmatized stems of words as synonymous (e.g. "burning" and "burned" are equivalent to "burn")
 #' @param allow_multiple logical: if TRUE, returns all matched metadata, else returns most frequent
-tag_strict <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE){
+tag_strictly <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE){
   # check the class of docs
   if(class(doc) != "character"){
     stop("doc must be an object of class character")
@@ -19,7 +19,7 @@ tag_strict <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE){
   
   if(enable_stemming){
       lapply(scheme, function(x){
-        unlist(lapply(x, litsearchr::should_stem))
+        unlist(lapply(x, should_stem))
       })
   }
   
@@ -37,4 +37,34 @@ tag_strict <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE){
   }
   return(tags)
   
+}
+
+
+should_stem <- function(word){
+  splitup <- strsplit(word, " ")[[1]]
+  for(i in 1:length(splitup)){
+    wordcut <- SnowballC::wordStem(splitup[i], language="en")
+    stem_length <- nchar(wordcut)
+    
+    if(i==1){
+      if(stem_length > 3){
+        words <- paste(wordcut, "* ", sep="")
+      }
+      if(stem_length <= 3){
+        words <- paste(splitup[i], " ", sep="")
+      }
+    }
+    if(i > 1){
+      if(stem_length > 3){
+        words <- paste(words, wordcut, "* ", sep="")
+      }
+      if(stem_length <= 3){
+        words <- paste(words, splitup[i], " ", sep="")
+      }
+    }
+  }
+  
+  words <- trimws(words)
+  
+  return(words)
 }
