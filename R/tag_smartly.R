@@ -1,9 +1,9 @@
-tag_smartly <- function(x,
-                        tags = NULL,
+tag_smartly <- function(tagged_documents, new_documents,
+                        tags,
                         cutoff = NULL,
                         prop_training = .7) {
   tags <- factor(tags)
-  words <- lapply(x, mine_terms)
+  words <- lapply(append(tagged_documents, new_documents), mine_terms)
   names(words) <- seq(1, length(words), 1)
   
   if (length(levels(tags)) > 2) {
@@ -14,9 +14,11 @@ tag_smartly <- function(x,
   
   # choo choo
   train_data <-
-    sort(sample(1:length(words), floor(length(words) * prop_training)))
+    sort(sample(1:length(tagged_documents), floor(length(tagged_documents) * prop_training)))
   test_data <-
-    as.numeric(names(words)[!(names(words) %in% train_data)])
+    seq(1, length(tagged_documents), 1)[!(seq(1, length(tagged_documents), 1) %in% train_data)]
+  new_data <-
+    seq(length(tagged_documents)+1, length(words), 1)
   
   sparse_mat <- prep_matrix(words)
   
@@ -27,7 +29,9 @@ tag_smartly <- function(x,
       tags = tags,
       modfam = modfam
     )
-  performance <-
+  # get the optimal cutoff value by performance on training data
+  
+  performance1 <-
     test_model(
       mod,
       indices = train_data,
@@ -35,19 +39,32 @@ tag_smartly <- function(x,
       modfam = modfam,
       xdat = sparse_mat,
       cutoff = cutoff
-    )
+    ) 
+  
+  # now check actual performance with the test data
+  
+  performance2 <-
+    test_model(
+      mod,
+      indices = test_data,
+      tags = tags,
+      modfam = modfam,
+      xdat = sparse_mat,
+      cutoff = performance1[1]
+    ) 
   
   predictions <-
     predict(mod,
-            newx = sparse_mat[test_data, ],
+            newx = sparse_mat[new_data, ],
             s = 'lambda.min',
             type = "response")
+  
   new_tags <-
     get_tags(predictions,
-             cutoff = performance[1],
+             cutoff = performance1[1],
              modfam = modfam,
              tags = tags)
-  
+
   return(new_tags)
 }
 
@@ -140,7 +157,7 @@ test_model <- function(mod, indices, tags, modfam, xdat, cutoff) {
              modfam = modfam,
              tags = tags[indices])
   mod_performance <-
-    error_rates(as.character(tags[train_data]), new_tags)
+    error_rates(as.character(tags[indices]), new_tags)
   mod_performance <- cbind(cutoff, mod_performance)
   return(mod_performance)
 }
