@@ -1,3 +1,0 @@
-seed_tm <- function(){
-  
-}
