@@ -1,0 +1,20 @@
+---
+title: "Add topics to documents with topictagger"
+author: Eliza Grames
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Add topics to documents with topictagger}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(topictagger)
+```
