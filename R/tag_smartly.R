@@ -1,4 +1,15 @@
-tag_smartly <- function(tagged_documents, new_documents,
+#' Tag topics based on known documents
+#' @description Given a set of documents tagged with topics and a set of new documents, tags new documents by learning characteristics of topics from existing tagged documents.
+#' @param new_documents a character vector of documents to tag
+#' @param tagged_documents a character vector of documents 
+#' @param tags a character vector of tags of the same length as tagged_documents
+#' @param cutoff numeric: what cutoff should be used for probability of being included in a topic? If NULL, finds the optimal cutoff for model accuracy in training data.
+#' @param prop_training: numeric: what proportion of tagged_documents should be used for training? Remaining proportion will be used for model testing.
+#' @return a character vector of tags of length equal to new_documents
+#' @examples inst/examples/tag_smartly_ex.R
+#' @export
+tag_smartly <- function(new_documents,
+                        tagged_documents,
                         tags,
                         cutoff = NULL,
                         prop_training = .7) {
@@ -31,8 +42,8 @@ tag_smartly <- function(tagged_documents, new_documents,
     )
   # get the optimal cutoff value by performance on training data
   
-  performance1 <-
-    test_model(
+  performance_train <-
+    check_model(
       mod,
       indices = train_data,
       tags = tags,
@@ -43,8 +54,8 @@ tag_smartly <- function(tagged_documents, new_documents,
   
   # now check actual performance with the test data
   
-  performance2 <-
-    test_model(
+  performance_test <-
+    check_model(
       mod,
       indices = test_data,
       tags = tags,
@@ -68,14 +79,23 @@ tag_smartly <- function(tagged_documents, new_documents,
   return(new_tags)
 }
 
-
+#' Gets model classification error rates
+#' @description Given known data and model predictions, calculates model classification accuracy
+#' @param input a character vector of known tags for testing model
+#' @param output a character vector of tags from model predictions
+#' @return a numeric score of model accuracy
+#' @export
 error_rates <- function(input, output) {
   crossed <- table(input, output)
   accuracy <- sum(diag(crossed)) / sum(colSums(crossed))
   
+  # note to self, add an option here for binary true/false positive/negative error rates
+  # can use for the alternative to kappa too
+  
   return(accuracy)
 }
 
+#' Get tags from model predictions
 get_tags <- function(predictions, cutoff, modfam, tags) {
   if (modfam == "multinomial") {
     new_tags <- apply(predictions, 1, function(x) {
@@ -93,6 +113,7 @@ get_tags <- function(predictions, cutoff, modfam, tags) {
   return(new_tags)
 }
 
+#' Prep sparse matrix for use in tag_smartly
 prep_matrix <- function(words) {
   tokens <- lapply(words, function(x) {
     tmp <- gsub(" ", "_", x)
@@ -110,6 +131,7 @@ prep_matrix <- function(words) {
   return(sparse_mat)
 }
 
+#' Fit a GLM to build the topic model
 fit_model <- function(sparse_mat, indices, tags, modfam) {
   classifications <- tags[indices]
   
@@ -130,7 +152,8 @@ fit_model <- function(sparse_mat, indices, tags, modfam) {
   return(mod)
 }
 
-test_model <- function(mod, indices, tags, modfam, xdat, cutoff) {
+#' Check model performance
+check_model <- function(mod, indices, tags, modfam, xdat, cutoff) {
   predictions <-
     predict(mod,
             s = 'lambda.min',
