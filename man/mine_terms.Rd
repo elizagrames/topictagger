@@ -4,7 +4,7 @@
 \alias{mine_terms}
 \title{Extracts reasonable terms for topic modeling}
 \usage{
-mine_terms(x, retain_stopwords = FALSE, known_phrases = NULL)
+mine_terms(x, retain_stopwords = FALSE, known_phrases = NULL, ngrams = TRUE)
 }
 \arguments{
 \item{x}{a character vector of documents}

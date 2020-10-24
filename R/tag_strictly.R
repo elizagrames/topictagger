@@ -6,6 +6,8 @@
 #' @param scheme a dictionary object or list containing an ontology or set of terms 
 #' @param enable_stemming logical: if TRUE, interpret lemmatized stems of words as synonymous (e.g. "burning" and "burned" are equivalent to "burn")
 #' @param allow_multiple logical: if TRUE, returns all matched metadata, else returns most frequent
+#' @examples inst/examples/tag_strictly_ex.R
+#' @export
 tag_strictly <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE){
   # check the class of docs
   if(class(doc) != "character"){
@@ -39,7 +41,7 @@ tag_strictly <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE)
   
 }
 
-
+#' Checks length of a word and stems if long enough to be unambiguous
 should_stem <- function(word){
   splitup <- strsplit(word, " ")[[1]]
   for(i in 1:length(splitup)){
