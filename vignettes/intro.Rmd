@@ -17,4 +17,76 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(topictagger)
+
 ```
+
+# Introduction
+
+# Tag all documents based on an ontology or topic scheme
+
+## Read in documents
+
+```{r}
+
+```
+
+
+## Construct scheme
+
+```{r}
+
+```
+
+## Tag documents using standardized scheme
+
+```{r}
+
+```
+
+
+# Tag new documents based on existing document tags
+
+## Read in all documents
+
+First, we read in the documents that have already been manually screened and had tags added to them.
+
+```{r}
+
+
+```
+
+Next, we can read in new documents that need to be tagged.
+
+```{r}
+
+```
+
+## Get document tags for new models
+
+What's going on behind the scenes?
+
+```{r}
+
+```
+
+# Tag all documents with no known topics
+
+## Read in documents
+
+```{r}
+
+```
+
+
+## Assign documents to topics
+
+```{r}
+
+```
+
+## Explore topics
+
+```{r}
+
+```
+
