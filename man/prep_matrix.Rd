@@ -6,6 +6,12 @@
 \usage{
 prep_matrix(words)
 }
+\arguments{
+\item{words}{a list of character vectors of words}
+}
+\value{
+a sparse document-feature matrix
+}
 \description{
-Prep sparse matrix for use in tag_smartly
+Given a list of bags of words, creates a document-feature matrix
 }

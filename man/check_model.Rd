@@ -6,6 +6,22 @@
 \usage{
 check_model(mod, indices, tags, modfam, xdat, cutoff)
 }
+\arguments{
+\item{mod}{a glmnet model}
+
+\item{indices}{a numeric vector of documents belonging to a subset used to fit the model}
+
+\item{tags}{a character vector of document classifications or tags for documents at indices}
+
+\item{modfam}{a string of length 1; options are "binomial" or "multinomial"}
+
+\item{xdat}{a sparse document-feature matrix of class ngCMatrix}
+
+\item{cutoff}{What probability should be used as a cutoff for topic classification? Options are proportions between 0-1, or NULL to find an optimal cutoff based on model accuracy.}
+}
+\value{
+a vector containing the cutoff used and model accuracy at that cutoff
+}
 \description{
-Check model performance
+Given model inputs, checks model performance based on optimal or specified cutoff in classification probability
 }

@@ -5,6 +5,7 @@
 #' @param ngrams logical: if TRUE, groups documents using ngrams (i.e. multi-word phrases) instead of single terms
 #' @param n_terms numeric: how many terms should be returned for each topic
 #' @return a vector of topic numbers and associated terms for users to post-hoc classify
+#' @example inst/examples/tag_freely_ex.R
 #' @export
 tag_freely <- function(docs, k=3, ngrams=TRUE, n_terms=10){
     tokens <- lapply(docs, mine_terms, ngrams=ngrams)
@@ -16,7 +17,7 @@ tag_freely <- function(docs, k=3, ngrams=TRUE, n_terms=10){
     
   # now convert the code from entogem tm here
     keep_names <- which(tokens!="")
-    z2 <- SimpleCorpus(VectorSource(unlist(tokens[!tokens==""])))
+    z2 <- tm::SimpleCorpus(tm::VectorSource(unlist(tokens[!tokens==""])))
     tdm <- tm::DocumentTermMatrix(z2)
     
     m <- topicmodels::LDA(tdm, k = k)

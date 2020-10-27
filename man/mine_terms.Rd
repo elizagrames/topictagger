@@ -16,6 +16,3 @@ mine_terms(x, retain_stopwords = FALSE, known_phrases = NULL, ngrams = TRUE)
 \description{
 Given documents, extracts possible ngram terms to use for topic modeling.
 }
-\examples{
-inst/examples/mine_terms.R
-}

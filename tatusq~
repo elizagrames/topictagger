@@ -1,0 +1,56 @@
+[1mdiff --git a/R/tag_strictly.R b/R/tag_strictly.R[m
+[1mindex 5772938..a62e583 100644[m
+[1m--- a/R/tag_strictly.R[m
+[1m+++ b/R/tag_strictly.R[m
+[36m@@ -6,7 +6,7 @@[m
+ #' @param scheme a dictionary object or list containing an ontology or set of terms [m
+ #' @param enable_stemming logical: if TRUE, interpret lemmatized stems of words as synonymous (e.g. "burning" and "burned" are equivalent to "burn")[m
+ #' @param allow_multiple logical: if TRUE, returns all matched metadata, else returns most frequent[m
+[31m-tag_strict <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE){[m
+[32m+[m[32mtag_strictly <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE){[m
+   # check the class of docs[m
+   if(class(doc) != "character"){[m
+     stop("doc must be an object of class character")[m
+[36m@@ -19,7 +19,7 @@[m [mtag_strict <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE){[m
+   [m
+   if(enable_stemming){[m
+       lapply(scheme, function(x){[m
+[31m-        unlist(lapply(x, litsearchr::should_stem))[m
+[32m+[m[32m        unlist(lapply(x, should_stem))[m
+       })[m
+   }[m
+   [m
+[36m@@ -38,3 +38,33 @@[m [mtag_strict <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE){[m
+   return(tags)[m
+   [m
+ }[m
+[32m+[m
+[32m+[m
+[32m+[m[32mshould_stem <- function(word){[m
+[32m+[m[32m  splitup <- strsplit(word, " ")[[1]][m
+[32m+[m[32m  for(i in 1:length(splitup)){[m
+[32m+[m[32m    wordcut <- SnowballC::wordStem(splitup[i], language="en")[m
+[32m+[m[32m    stem_length <- nchar(wordcut)[m
+[32m+[m[41m    [m
+[32m+[m[32m    if(i==1){[m
+[32m+[m[32m      if(stem_length > 3){[m
+[32m+[m[32m        words <- paste(wordcut, "* ", sep="")[m
+[32m+[m[32m      }[m
+[32m+[m[32m      if(stem_length <= 3){[m
+[32m+[m[32m        words <- paste(splitup[i], " ", sep="")[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+[32m+[m[32m    if(i > 1){[m
+[32m+[m[32m      if(stem_length > 3){[m
+[32m+[m[32m        words <- paste(words, wordcut, "* ", sep="")[m
+[32m+[m[32m      }[m
+[32m+[m[32m      if(stem_length <= 3){[m
+[32m+[m[32m        words <- paste(words, splitup[i], " ", sep="")[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m[41m  [m
+[32m+[m[32m  words <- trimws(words)[m
+[32m+[m[41m  [m
+[32m+[m[32m  return(words)[m
+[32m+[m[32m}[m

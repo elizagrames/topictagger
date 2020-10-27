@@ -4,9 +4,9 @@
 #' @param tagged_documents a character vector of documents 
 #' @param tags a character vector of tags of the same length as tagged_documents
 #' @param cutoff numeric: what cutoff should be used for probability of being included in a topic? If NULL, finds the optimal cutoff for model accuracy in training data.
-#' @param prop_training: numeric: what proportion of tagged_documents should be used for training? Remaining proportion will be used for model testing.
+#' @param prop_training numeric: what proportion of tagged_documents should be used for training? Remaining proportion will be used for model testing.
 #' @return a character vector of tags of length equal to new_documents
-#' @examples inst/examples/tag_smartly_ex.R
+#' @example inst/examples/tag_smartly_ex.R
 #' @export
 tag_smartly <- function(new_documents,
                         tagged_documents,
@@ -61,18 +61,18 @@ tag_smartly <- function(new_documents,
       tags = tags,
       modfam = modfam,
       xdat = sparse_mat,
-      cutoff = performance1[1]
+      cutoff = performance_train[1]
     ) 
   
   predictions <-
-    predict(mod,
+    stats::predict(mod,
             newx = sparse_mat[new_data, ],
             s = 'lambda.min',
             type = "response")
   
   new_tags <-
     get_tags(predictions,
-             cutoff = performance1[1],
+             cutoff = performance_train[1],
              modfam = modfam,
              tags = tags)
 
@@ -96,6 +96,11 @@ error_rates <- function(input, output) {
 }
 
 #' Get tags from model predictions
+#' @param predictions a vector or matrix of model predictions
+#' @param cutoff numeric: a cutoff in probability for accepting predictions as tags
+#' @param modfam string: either "binomial" or "multinomial"
+#' @param tags factor: tags predicted by the model
+#' @example inst/examples/tag_smartly_ex.R 
 get_tags <- function(predictions, cutoff, modfam, tags) {
   if (modfam == "multinomial") {
     new_tags <- apply(predictions, 1, function(x) {
@@ -104,7 +109,7 @@ get_tags <- function(predictions, cutoff, modfam, tags) {
       } else{
         NA
       }
-    })
+    }) ## note to self, could probably do this with dim of predictions and eliminate modfam?
   } else if (modfam == "binomial") {
     new_tags <- c()
     new_tags[predictions >= cutoff] <- levels(tags)[1]
@@ -114,6 +119,9 @@ get_tags <- function(predictions, cutoff, modfam, tags) {
 }
 
 #' Prep sparse matrix for use in tag_smartly
+#' @description Given a list of bags of words, creates a document-feature matrix
+#' @param words a list of character vectors of words
+#' @return a sparse document-feature matrix
 prep_matrix <- function(words) {
   tokens <- lapply(words, function(x) {
     tmp <- gsub(" ", "_", x)
@@ -132,9 +140,17 @@ prep_matrix <- function(words) {
 }
 
 #' Fit a GLM to build the topic model
+#' @description Fits a GLM topic model to a document-feature matrix based on specified subset of documents
+#' @param sparse_mat a sparse document-feature matrix of class ngCMatrix
+#' @param indices a numeric vector of documents belonging to a subset used to fit the model
+#' @param tags a character vector of document classifications or tags
+#' @param modfam a string of length 1; options are "binomial" or "multinomial"
+#' @return a glmnet model
 fit_model <- function(sparse_mat, indices, tags, modfam) {
   classifications <- tags[indices]
   
+  
+  # can probably get this from length(levels(tags[indices])), right?
   if (modfam == "binomial") {
     classifications <- classifications == levels(classifications)[1]
   }
@@ -153,9 +169,17 @@ fit_model <- function(sparse_mat, indices, tags, modfam) {
 }
 
 #' Check model performance
+#' @description Given model inputs, checks model performance based on optimal or specified cutoff in classification probability 
+#' @param mod a glmnet model
+#' @param indices a numeric vector of documents belonging to a subset used to fit the model
+#' @param tags a character vector of document classifications or tags for documents at indices
+#' @param modfam a string of length 1; options are "binomial" or "multinomial"
+#' @param xdat a sparse document-feature matrix of class ngCMatrix
+#' @param cutoff What probability should be used as a cutoff for topic classification? Options are proportions between 0-1, or NULL to find an optimal cutoff based on model accuracy.
+#' @return a vector containing the cutoff used and model accuracy at that cutoff
 check_model <- function(mod, indices, tags, modfam, xdat, cutoff) {
   predictions <-
-    predict(mod,
+    stats::predict(mod,
             s = 'lambda.min',
             newx = xdat[indices, ],
             type = "response")

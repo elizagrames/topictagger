@@ -21,7 +21,7 @@ tag_smartly(
 
 \item{cutoff}{numeric: what cutoff should be used for probability of being included in a topic? If NULL, finds the optimal cutoff for model accuracy in training data.}
 
-\item{prop_training:}{numeric: what proportion of tagged_documents should be used for training? Remaining proportion will be used for model testing.}
+\item{prop_training}{numeric: what proportion of tagged_documents should be used for training? Remaining proportion will be used for model testing.}
 }
 \value{
 a character vector of tags of length equal to new_documents
@@ -30,5 +30,5 @@ a character vector of tags of length equal to new_documents
 Given a set of documents tagged with topics and a set of new documents, tags new documents by learning characteristics of topics from existing tagged documents.
 }
 \examples{
-inst/examples/tag_smartly_ex.R
+
 }

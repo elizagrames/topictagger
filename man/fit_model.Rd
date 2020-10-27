@@ -6,6 +6,18 @@
 \usage{
 fit_model(sparse_mat, indices, tags, modfam)
 }
+\arguments{
+\item{sparse_mat}{a sparse document-feature matrix of class ngCMatrix}
+
+\item{indices}{a numeric vector of documents belonging to a subset used to fit the model}
+
+\item{tags}{a character vector of document classifications or tags}
+
+\item{modfam}{a string of length 1; options are "binomial" or "multinomial"}
+}
+\value{
+a glmnet model
+}
 \description{
-Fit a GLM to build the topic model
+Fits a GLM topic model to a document-feature matrix based on specified subset of documents
 }

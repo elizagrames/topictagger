@@ -3,7 +3,7 @@
 #' @param x a character vector of documents
 #' @param retain_stopwords logical: if TRUE, retains stopwords used in known terms
 #' @param known_phrases a character vector of stopwords to retain or phrases known to be relevant
-#' @examples inst/examples/mine_terms.R
+#' @example inst/examples/mine_terms.R
 #' @export
 mine_terms <- function(x, retain_stopwords=FALSE, known_phrases=NULL, ngrams=TRUE){
   sw <- litsearchr::custom_stopwords

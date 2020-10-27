@@ -6,7 +6,7 @@
 #' @param scheme a dictionary object or list containing an ontology or set of terms 
 #' @param enable_stemming logical: if TRUE, interpret lemmatized stems of words as synonymous (e.g. "burning" and "burned" are equivalent to "burn")
 #' @param allow_multiple logical: if TRUE, returns all matched metadata, else returns most frequent
-#' @examples inst/examples/tag_strictly_ex.R
+#' @example inst/examples/tag_strictly_ex.R
 #' @export
 tag_strictly <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE){
   # check the class of docs
@@ -29,7 +29,13 @@ tag_strictly <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE)
     scheme <- quanteda::dictionary(scheme)
   }
   
+  ## note to self: do a simple dfm first, then use dfm_lookup
+  ## just don't forget about levels of the dictionary
+  ## then we can also easily collapse levels
+  
   dfm <- as.matrix(quanteda::dfm(doc, dictionary=scheme))
+  
+  tm::DocumentTermMatrix()
   dfm[dfm==0] <- NA
   
   if(!allow_multiple){
@@ -42,6 +48,11 @@ tag_strictly <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE)
 }
 
 #' Checks length of a word and stems if long enough to be unambiguous
+#' @description Given a word, checks the number of characters of the stem and truncates if the stem is at least four letters long.
+#' @param word a character vector of length 1 with a word or phrase to check for stemming
+#' @return a character vector of length 1 with the input truncated to stem
+#' @examples should_stem("keep cats indoors")
+#' @export
 should_stem <- function(word){
   splitup <- strsplit(word, " ")[[1]]
   for(i in 1:length(splitup)){

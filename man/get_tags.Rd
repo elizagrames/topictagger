@@ -6,6 +6,18 @@
 \usage{
 get_tags(predictions, cutoff, modfam, tags)
 }
+\arguments{
+\item{predictions}{a vector or matrix of model predictions}
+
+\item{cutoff}{numeric: a cutoff in probability for accepting predictions as tags}
+
+\item{modfam}{string: either "binomial" or "multinomial"}
+
+\item{tags}{factor: tags predicted by the model}
+}
 \description{
 Get tags from model predictions
+}
+\examples{
+
 }

@@ -6,6 +6,15 @@
 \usage{
 should_stem(word)
 }
+\arguments{
+\item{word}{a character vector of length 1 with a word or phrase to check for stemming}
+}
+\value{
+a character vector of length 1 with the input truncated to stem
+}
 \description{
-Checks length of a word and stems if long enough to be unambiguous
+Given a word, checks the number of characters of the stem and truncates if the stem is at least four letters long.
+}
+\examples{
+should_stem("keep cats indoors")
 }

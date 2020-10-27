@@ -21,5 +21,5 @@ dictionary and a set of documents, applies the
 ontoloy to tag metadata hierarchically for each document.
 }
 \examples{
-inst/examples/tag_strictly_ex.R
+
 }
