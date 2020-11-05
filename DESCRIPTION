@@ -25,7 +25,8 @@ Imports:
   Matrix,
   quanteda,
   SnowballC,
-  tm,
+  tm
+Suggests:
   topicmodels
 License: GPL-3
 Encoding: UTF-8
