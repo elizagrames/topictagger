@@ -14,7 +14,7 @@ tag_smartly <- function(new_documents,
                         cutoff = NULL,
                         prop_training = .7) {
   tags <- factor(tags)
-  words <- lapply(append(tagged_documents, new_documents), mine_terms)
+  words <- lapply(append(tagged_documents, new_documents), topictagger::mine_terms)
   names(words) <- seq(1, length(words), 1)
   
   if (length(levels(tags)) > 2) {
@@ -156,7 +156,7 @@ fit_model <- function(sparse_mat, indices, tags, modfam) {
   }
   doMC::registerDoMC(cores = 8)
   mod <-
-    glmnet::cv.glmnet(
+    glmnet::glmnet(
       sparse_mat[indices, ],
       classifications,
       family = modfam,

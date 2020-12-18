@@ -6,8 +6,8 @@
 #' @param ngrams logical: if TRUE, only returns phrases of two words or more
 #' @example inst/examples/mine_terms_ex.R
 #' @export
-mine_terms <- function(x, retain_stopwords=FALSE, known_phrases=NULL, ngrams=TRUE){
-  sw <- litsearchr::custom_stopwords
+mine_terms <- function(x, retain_stopwords=FALSE, known_phrases=NULL, ngrams=TRUE, new_stopwords=c()){
+  sw <- append(litsearchr::custom_stopwords, new_stopwords)
   
   # keep any stopwords supplied or in phrases
   # for example, if 'of' is actually important

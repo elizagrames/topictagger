@@ -8,7 +8,7 @@
 #' @param allow_multiple logical: if TRUE, returns all matched metadata, else returns most frequent
 #' @example inst/examples/tag_strictly_ex.R
 #' @export
-tag_strictly <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE){
+tag_strictly <- function(doc, scheme, allow_multiple=TRUE){
   # check the class of docs
   if(class(doc) != "character"){
     stop("doc must be an object of class character")
@@ -18,13 +18,7 @@ tag_strictly <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE)
   if(!class(scheme) %in% c("dictionary", "dictionary2", "list")){
     stop("scheme must be an object of class dictionary or a list of terms")
   }
-  
-  if(enable_stemming){
-      lapply(scheme, function(x){
-        unlist(lapply(x, should_stem))
-      })
-  }
-  
+
   if(class(scheme)=="list"){
     scheme <- quanteda::dictionary(scheme)
   }
@@ -34,18 +28,19 @@ tag_strictly <- function(doc, scheme, enable_stemming=TRUE, allow_multiple=TRUE)
   ## then we can also easily collapse levels
   
   dfm <- as.matrix(quanteda::dfm(doc, dictionary=scheme))
-  
-  tm::DocumentTermMatrix()
-  dfm[dfm==0] <- NA
-  
   if(!allow_multiple){
-    tags <- as.numeric(apply(dfm, 1, which.max))
+    tags <- colnames(dfm)[as.numeric(apply(dfm, 1, function(x){
+      if(x[which.max(x)]>1){
+        which.max(x)
+      }else{NA}
+    }))]
   }else{
       tags <- dfm
   }
   return(tags)
   
 }
+
 
 #' Checks length of a word and stems if long enough to be unambiguous
 #' @description Given a word, checks the number of characters of the stem and truncates if the stem is at least four letters long.
