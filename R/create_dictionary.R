@@ -8,28 +8,25 @@
 #' @example inst/examples/create_dictionary_ex.R
 #' @export
 create_dictionary <- function(parents, children, descendants=NULL, return_dictionary=FALSE){
+  adults <- unique(parents[!is.na(parents)])
   output <- list()
-  classes <- unique(parents)
-  if(any(is.na(classes))){
-    classes <- classes[!is.na(classes)]
-  }
   
-  for(i in 1:length(classes)){
-    pairs <- children[which(parents==classes[i])]
-    if(any(is.na(pairs))){
-      pairs <- pairs[!is.na(pairs)]
-    }
+  for(i in 1:length(adults)){
     
-    if(!is.null(descendants)){
-      entry <- descendants[names(descendants)%in%pairs]
+    offspring <- children[which(parents %in% adults[i])]
+    offspring <- offspring[!is.na(offspring)]
+    
+    if(length(offspring)<1){
+      output[i] <- define(adults[i])
     }else{
-      entry <- pairs
+      for(j in 1:length(offspring)){
+        output[[i]] <- descendants[which(names(descendants)%in%offspring)]
+      }
     }
-    
-    output[[i]] <- append(classes[i], entry)
     
   }
-  names(output) <- classes
+  names(output) <- adults
+
   if(return_dictionary){
     output <- quanteda::dictionary(output)
   }
