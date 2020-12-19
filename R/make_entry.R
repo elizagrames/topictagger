@@ -1,42 +1,22 @@
-make_entry <- function(parents, children, descendants=NULL, return_dictionary=FALSE){
+make_entry <- function(parents, children=NULL, descendants=NULL){
+  
+  adults <- unique(parents[!is.na(parents)])
   output <- list()
-  classes <- unique(parents)
-  if(any(is.na(classes))){
-    classes <- classes[!is.na(classes)]
-  }
   
-  for(i in 1:length(classes)){
-    pairs <- children[which(parents==classes[i])]
-    if(any(is.na(pairs))){
-      pairs <- pairs[!is.na(pairs)]
-    }
-    pairs <- append(classes[i], pairs)
-    if(length(pairs)>0){
-      pair_list <- lapply(pairs, topictagger::mine_terms)
-      pair_list[pairs %in% names(descendants)] <- NA
-      
-      for(j in 1:length(pairs)){
-        if(pairs[j] %in% names(descendants)){
-          pair_list[j] <- descendants[which(names(descendants)==pairs[j])]
-        }
-      }
-      names(pair_list) <- pairs
-      
-      entry <- pair_list
+  for(i in 1:length(adults)){
+    
+    offspring <- children[which(parents %in% adults[i])]
+    offspring <- offspring[!is.na(offspring)]
+    
+    if(length(offspring)<1){
+      output[i] <- define(adults[i])
     }else{
-      entry <- classes[i]
-    }
-
-    output[[i]] <-  entry
-    
+      for(j in 1:length(offspring)){
+        output[[i]] <- descendants[which(names(descendants)%in%offspring)]
+      }
     }
     
-    
-  names(output) <- classes
-  
-  
-  if(return_dictionary){
-    output <- quanteda::dictionary(output)
   }
+  names(output) <- adults
   return(output)
 }
