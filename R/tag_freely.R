@@ -20,7 +20,7 @@ tag_freely <- function(docs, k=3, ngrams=TRUE, n_terms=10){
     z2 <- tm::SimpleCorpus(tm::VectorSource(unlist(tokens[!tokens==""])))
     tdm <- tm::DocumentTermMatrix(z2)
     
-    m <- topicmodels::LDA(tdm, k = k)
+    m <- topicmodels::LDA(tdm, k = k, method="Gibbs")
     tps <- topicmodels::topics(m)
     
     all_topics <- c()
