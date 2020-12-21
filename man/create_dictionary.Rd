@@ -4,19 +4,10 @@
 \alias{create_dictionary}
 \title{Creates hierarchical dictionary entries}
 \usage{
-create_dictionary(
-  parents,
-  children,
-  descendants = NULL,
-  return_dictionary = FALSE
-)
+create_dictionary(x, return_dictionary = TRUE)
 }
 \arguments{
-\item{parents}{a character vector of parent entries}
-
-\item{children}{a character vector of length equal to parents containing child entries}
-
-\item{descendants}{a named list of descendants of child entries (optional)}
+\item{x}{a data.frame where columns represent parent and child entries in a hierarchy from left to right}
 
 \item{return_dictionary}{logical; if TRUE, returns a dictionary object; if FALSE, returns a list of lists}
 }
@@ -24,7 +15,7 @@ create_dictionary(
 a list of lists or hierarchical dictionary object of parents, children, and descendants
 }
 \description{
-Given a list of parent and children entries, creates hierarchical named lists of lists that can be used as a dictionary object
+Given an object containing parent and child entries in columns from left to right, creates hierarchical named lists of lists that can be used as a dictionary object
 }
 \examples{
 

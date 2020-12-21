@@ -4,16 +4,16 @@
 \alias{mine_terms}
 \title{Extracts reasonable terms for topic modeling}
 \usage{
-mine_terms(x, retain_stopwords = FALSE, known_phrases = NULL, ngrams = TRUE)
+mine_terms(x, known_phrases = NULL, ngrams = TRUE, new_stopwords = c())
 }
 \arguments{
 \item{x}{a character vector of documents}
 
-\item{retain_stopwords}{logical: if TRUE, retains stopwords used in known terms}
-
 \item{known_phrases}{a character vector of stopwords to retain or phrases known to be relevant}
 
 \item{ngrams}{logical: if TRUE, only returns phrases of two words or more}
+
+\item{retain_stopwords}{logical: if TRUE, retains stopwords used in known terms}
 }
 \description{
 Given documents, extracts possible ngram terms to use for topic modeling.
