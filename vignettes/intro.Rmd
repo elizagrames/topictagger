@@ -1,6 +1,6 @@
 ---
 title: "Add topics to documents with topictagger"
-author: Eliza Grames
+author: Eliza Grames and Neal Haddaway
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Add topics to documents with topictagger}
@@ -15,32 +15,113 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Introduction
+
+Extracting and tagging metadata for evidence synthesis, such as systematic maps or meta-analyses, is a time-consuming step in the synthesis pipeline. Metadata extraction takes an average of 25.3 days for systematic maps and 6 days for smaller-scale systematic reviews [(Haddaway and Westgate 2018)](http://doi.org/10.1111/cobi.13231). Since many types of metadata, such as location of study or primary outcome, also function as eligibility criteria to include studies in a synthesis, the total amount of time spent considering metadata for a systematic map could actually be upwards of 100 hours. 
+
+topictagger partially automates the process of tagging metadata and document topics for evidence synthesis. Given a hierarchical ontology of relationships between entitites, a set of articles with known topics, or a set of terms associated with a topic, topictagger will tag metadata from an ontology or classify articles by probable topics (e.g. outcomes) and return probable topics and metadata tags for each article.
+
+In this vignette, we demonstrate the core functions of topictagger through a worked example of applying an ontology of insect conservation actions and biomes to a subset of a database of entomology studies exported from the [EntoGEM project](https://entogem.github.io/). The worked example draws from a subset of a [broader project](https://insectconservation.github.io/) aiming to systematically map what insect conservation actions have been studied. Work on this project and development of topictagger was funded by the [Swedish Foundation for Strategic Environmental Research (Mistra)](https://www.mistra.org/). 
+
+If you have questions, suggestions, or want to report issues with topictagger, please use the [topictagger GitHub repository](https://github.com/elizagrames/topictagger).
+
 ```{r setup}
 library(topictagger)
-
 ```
 
-# Introduction
 
 # Tag all documents based on an ontology or topic scheme
 
+There are three primary ways that topictagger will assign classifications to an article: a 'dictionary' approach where it applies a known ontology, a training approach where it classifies new articles based on existing tags in a training dataset, and an unconstrained approach where topics contained in a database are unknown. 
+
+In this first section, we use topictagger to classify our document set using two pre-established ontologies. This type of approach is best suited to when you have an ontology established by a group of experts that contains synonyms and nested definitions for entries, or are working with discrete classifications such as geopolitical entities or species names.
+
 ## Read in documents
 
-```{r}
+First, we will read in the example documents stored in topictagger, which are a small set of 500 documents on insect populations and conservation. These articles come from the EntoGEM project, a systematic map to identify long-term studies of insect populations and biodiversity, and were initially identified and analysed as part of a concurrent project to rapidly assess gaps and clusters of knowledge on insect conservation actions as described in the Introduction. Each entry contains the title, abstract, keywords, authors, source (generally, an academic journal), year of publication, and other bibliographic data.
 
+```{r}
+data("insect_gapmap", package = "topictagger")
+knitr::kable(t(insect_gapmap[1, ]), "pipe")
 ```
+
+We only want to tag documents based on their titles, abstracts, and keywords, so we will create a character vector of those aspects of our documents
+
+```{r}
+articles <-
+  tolower(
+    paste(
+      insect_gapmap$title,
+      insect_gapmap$abstract,
+      insect_gapmap$keywords,
+      sep = " ;;; "
+    )
+  )
+knitr::kable(articles[1], "pipe")
+```
+
 
 
 ## Construct scheme
 
-```{r}
+We will now read in our two hierarchical lists that will form the basis of the dictionary. These are both partial ontologies in that they have relations to parent entries, but not to any other classes of items. Each object is a hierarchical list where the leftmost column represents the highest level of classification, and subsequent columns are nested within them. 
 
+```{r}
+data("biomes", package = "topictagger")
+knitr::kable(head(biomes, 10), "pipe")
+
+data("conservation_actions", package = "topictagger")
+knitr::kable(head(conservation_actions), "pipe")
+```
+
+We have set our objects up in this way because it is easy for humans to read and interpret the data this way in a spreadsheet. It is not, however, the best way to work with the data in R, so we need to convert this human-readable format into something more useful. We can use the function fill_rows to match the child entries in our dataset to their parents.
+
+```{r}
+biomes <- fill_rows(biomes)
+knitr::kable(head(biomes, 10), "pipe")
+
+conservation_actions <- fill_rows(conservation_actions)
+knitr::kable(head(conservation_actions), "pipe")
+```
+
+Now that our schemes are in the expected format, we can convert them to nested dictionary entries. To do that, we are going to use the function create_dictionary. It iteratively loops through our object from the lowest-level descendants to the first-order parents and constructs a hierarchical, nested list of named lists. 
+
+```{r}
+biome_ontology <- create_dictionary(biomes, 
+                                    return_dictionary = TRUE)
+
+head(biome_ontology$`Artificial - Aquatic`)
+
+action_ontology <- create_dictionary(conservation_actions, 
+                    return_dictionary = TRUE)
+
+head(action_ontology$`Law & policy`$`Private sector standards & codes`)
 ```
 
 ## Tag documents using standardized scheme
 
-```{r}
+Now that we have our set of documents read in and our schemes prepped, we can automatically add tags to the documents based on our classification schemes.
 
+```{r}
+actions <- tag_strictly(doc = articles,
+                        scheme = action_ontology,
+                        allow_multiple = FALSE)
+head(actions[!is.na(actions)])
+
+habitats <- tag_strictly(doc = articles,
+                         scheme = biome_ontology,
+                         allow_multiple = FALSE)
+head(habitats[!is.na(habitats)])
+```
+
+Because our tags are hierarchical, looking at the raw output is not the most informative and we actually want to extract information for each level of our ontology. We can use extract_levels to create a list object where each entry is the tags for each document at that level of the ontology. If we supply it with the number of levels to extract, it will only extract tags at the specified level(s), or we can let the function export all the levels at which it has tagged several entries if we set n.levels to NULL.
+
+```{r}
+tags <- extract_levels(actions, n.levels = 2)
+knitr::kable(sort(table(unlist(tags)), decreasing = T), "pipe")
+
+habitat_tags <- extract_levels(habitats, n.levels = 1)
+knitr::kable(sort(table(unlist(habitat_tags)), decreasing = T), "pipe")
 ```
 
 
@@ -48,45 +129,101 @@ library(topictagger)
 
 ## Read in all documents
 
-First, we read in the documents that have already been manually screened and had tags added to them.
+First, we read in the documents that have already been manually screened and had tags added to them. We are going to work with the tagged documents from the previous example and use the documents that have not been tagged as our 'new' documents to add tags to. We assume that they did not match the dictionary terms, but may still belong to one of our classifications. 
 
 ```{r}
+# extract the highest level of the conservation action ontology tags
+level1_tags <- extract_levels(actions, n.levels = 1)[[1]]
 
-
+# separate our documents into known tags and unknown tags
+tagged_documents <- articles[which(!is.na(level1_tags))]
+unknown_documents <- articles[which(is.na(level1_tags))]
 ```
 
-Next, we can read in new documents that need to be tagged.
+We also need to add some noise to our 'known' tags so that our new documents have the option of being classified as not belonging to any of our existing tags. For this, we can pull in a set of similar articles that are assumed to not belong to any of our topics. In this case, we are adding a set of agricultural pest studies, which will contain terms related to insects and habitats but will almost certainly not be advocating for conservation actions.
 
 ```{r}
+data("pest_articles", package = "topictagger")
+knitr::kable(t(pest_articles[1, ]), "pipe")
+pest_articles <-
+  tolower(
+    paste(
+      pest_articles$title,
+      pest_articles$abstract,
+      pest_articles$keywords,
+      sep = " ;;; "
+    )
+  )[1:250]
+
+tagged_documents <- append(tagged_documents, pest_articles)
+
+level1_tags <- append(level1_tags[!is.na(level1_tags)], 
+                      rep("noise", length(pest_articles)))
 
 ```
 
 ## Get document tags for new models
 
-What's going on behind the scenes?
+We are now ready to run a model to classify the unknown documents as either belonging to one of our topics or being noise. Because this is a rather small set of articles as an example, we need to ignore some of our dictionary tags because there are not enough observations to train the model on. For example, only one article in our subset is tagged as 'Education & awareness' and only two articles are tagged as 'Livelihood, economic & other incentives'.
 
 ```{r}
-
+knitr::kable(table(level1_tags), "pipe")
 ```
+
+We could drop those observations from our dataset, or, because they are on similar themes we can create a new tag and group them together. The output will be less specific than we would like, but it avoids throwing away our data. We will call this new group 'Human dimensions'.
+
+```{r}
+human_dimensions <- c(
+  "Livelihood, economic & other incentives",
+  "Education & awareness",
+  "Law & policy",
+  "Land/water protection"
+)
+
+level1_tags[level1_tags %in% human_dimensions] <-
+  "Human dimensions" 
+```
+
+```{r}
+smart_tags <- tag_smartly(new_documents = unknown_documents,
+                          tagged_documents = tagged_documents,
+                          tags = level1_tags)
+```
+
+
+This is not a great example because we have such small sample sizes that the model is not able to learn enough from the training dataset to make good predictions so it defaults to assuming all of our documents are noise because that is the most common category. We recommend having several hundred articles for each category if using tag_smartly with a multinomial response, or having fewer categories to predict (e.g. inclusion/exclusion of an article) if a dataset is relatively small.
 
 # Tag all documents with no known topics
 
-## Read in documents
-
-```{r}
-
-```
-
+If we did not know anything about the articles we are analysing, we might want to first start with some simple topic models to identify possible topics that emerge in the dataset. For this, we can use tag_freely to do some preliminary exploration. To do more advanced topic modeling, you should use a different package (e.g. topicmodels).
 
 ## Assign documents to topics
 
 ```{r}
+topics <-
+  tag_freely(
+    append(articles, pest_articles),
+    k = 3,
+    ngrams = TRUE,
+    n_terms = 20
+  )
+
+# How are our documents distributed across topics?
+barplot(
+  table(topics[[1]]),
+  las = 1,
+  col = "white",
+  xlab = "Topics",
+  main = ""
+)
 
 ```
 
 ## Explore topics
 
-```{r}
+The second item in the list is the key phrases associated with each topic. Even though we have only input a few hundred articles, we can still see topics emerging that we would expect based on our input data. For example, one of the topics with terms like "insect pests" and "natural enemies" likely corresponds to the "noise" of the pest articles and the other two topics seem to represent one cluster of studies on species in human-dominated environments (e.g. "invasive species", "honey bees", "agricultural land") and one cluster on insects in more natural areas (e.g. "climate change", "forest management", "aquatic invertebrates").
 
+```{r}
+knitr::kable(topics[[2]], "pipe")
 ```
 
