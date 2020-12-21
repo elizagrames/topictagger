@@ -4,7 +4,6 @@
 #' @param children a character vector of length equal to parents containing child entries
 #' @param descendants a named list of descendants of child entries (optional)
 #' @return a list of lists or hierarchical dictionary object of parents, children, and descendants
-#' @example inst/examples/create_dictionary_ex.R
 #' @export
 make_entry <- function(parents, children, descendants=NULL){
   adults <- unique(parents[!is.na(parents)])
@@ -42,7 +41,6 @@ make_entry <- function(parents, children, descendants=NULL){
 #' @param x a data.frame where columns represent parent and child entries in a hierarchy from left to right
 #' @param return_dictionary logical; if TRUE, returns a dictionary object; if FALSE, returns a list of lists
 #' @return a list of lists or hierarchical dictionary object of parents, children, and descendants
-#' @example inst/examples/create_dictionary_ex.R
 #' @export
 create_dictionary <- function(x, return_dictionary=TRUE){
   

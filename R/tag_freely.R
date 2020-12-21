@@ -5,7 +5,6 @@
 #' @param ngrams logical: if TRUE, groups documents using ngrams (i.e. multi-word phrases) instead of single terms
 #' @param n_terms numeric: how many terms should be returned for each topic
 #' @return a vector of topic numbers and associated terms for users to post-hoc classify
-#' @example inst/examples/tag_freely_ex.R
 #' @export
 tag_freely <- function(docs, k=3, ngrams=TRUE, n_terms=10){
     tokens <- lapply(docs, mine_terms, ngrams=ngrams)

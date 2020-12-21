@@ -15,6 +15,3 @@ a data.frame of the same dimensions as x with parent entries filled in
 \description{
 Given a human-readable nested list, matches children and descendants to parent entries and fills in gaps.
 }
-\examples{
-
-}

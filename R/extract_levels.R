@@ -3,7 +3,6 @@
 #' @param x a character vector containing hierarchical tags separated by a period
 #' @param n.levels numeric: the indices of levels that should be extracted
 #' @return a list of length equal to the length of n.levels where the length of each entry is the length of x
-#' @example inst/examples/extract_levels.r
 #' @export
 extract_levels <- function(x, n.levels = NULL) {
   if (is.null(n.levels)) {

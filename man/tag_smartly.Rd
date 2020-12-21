@@ -29,6 +29,3 @@ a character vector of tags of length equal to new_documents
 \description{
 Given a set of documents tagged with topics and a set of new documents, tags new documents by learning characteristics of topics from existing tagged documents.
 }
-\examples{
-
-}

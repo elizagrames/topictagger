@@ -3,7 +3,6 @@
 #' @param entry a character vector of entries in a dictionary
 #' @param exclusion_terms a character vector of terms to not retain as possible parts of a term definition
 #' @return a named list of the same length as entry containing character vectors defining each entry
-#' @example inst/examples/define_terms.R
 #' @export
 define_terms <- function(entry, exclusion_terms=NULL){
   z <- lapply(entry, function(t){

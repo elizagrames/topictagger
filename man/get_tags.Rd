@@ -18,6 +18,3 @@ get_tags(predictions, cutoff, modfam, tags)
 \description{
 Get tags from model predictions
 }
-\examples{
-
-}

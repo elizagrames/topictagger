@@ -6,7 +6,6 @@
 #' @param cutoff numeric: what cutoff should be used for probability of being included in a topic? If NULL, finds the optimal cutoff for model accuracy in training data.
 #' @param prop_training numeric: what proportion of tagged_documents should be used for training? Remaining proportion will be used for model testing.
 #' @return a character vector of tags of length equal to new_documents
-#' @example inst/examples/tag_smartly_ex.R
 #' @export
 tag_smartly <- function(new_documents,
                         tagged_documents,
@@ -100,7 +99,6 @@ error_rates <- function(input, output) {
 #' @param cutoff numeric: a cutoff in probability for accepting predictions as tags
 #' @param modfam string: either "binomial" or "multinomial"
 #' @param tags factor: tags predicted by the model
-#' @example inst/examples/tag_smartly_ex.R 
 get_tags <- function(predictions, cutoff, modfam, tags) {
   if (modfam == "multinomial") {
     new_tags <- apply(predictions, 1, function(x) {

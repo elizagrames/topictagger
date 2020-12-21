@@ -17,6 +17,3 @@ a named list of the same length as entry containing character vectors defining e
 \description{
 Extracts phrases associated with a dictionary entry to define it while removing exclusion terms that are too common or irrelevant to be included in definitions
 }
-\examples{
-
-}

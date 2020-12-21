@@ -6,7 +6,6 @@
 #' @param scheme a dictionary object or list containing an ontology or set of terms 
 #' @param enable_stemming logical: if TRUE, interpret lemmatized stems of words as synonymous (e.g. "burning" and "burned" are equivalent to "burn")
 #' @param allow_multiple logical: if TRUE, returns all matched metadata, else returns most frequent
-#' @example inst/examples/tag_strictly_ex.R
 #' @export
 tag_strictly <- function(doc, scheme, allow_multiple=TRUE){
   # check the class of docs

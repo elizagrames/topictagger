@@ -21,6 +21,3 @@ a vector of topic numbers and associated terms for users to post-hoc classify
 \description{
 Assign topics to documents when there is no scheme or prior knowledge for classifying documents other than number of topics.
 }
-\examples{
-
-}

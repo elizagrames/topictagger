@@ -17,6 +17,3 @@ a list of lists or hierarchical dictionary object of parents, children, and desc
 \description{
 Given an object containing parent and child entries in columns from left to right, creates hierarchical named lists of lists that can be used as a dictionary object
 }
-\examples{
-
-}

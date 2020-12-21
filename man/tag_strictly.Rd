@@ -20,6 +20,3 @@ Given a hierarchical ontology or
 dictionary and a set of documents, applies the
 ontoloy to tag metadata hierarchically for each document.
 }
-\examples{
-
-}
