@@ -67,7 +67,7 @@ tag_smartly <- function(new_documents,
   predictions <-
     stats::predict(mod,
             newx = sparse_mat[new_data, ],
-            s = 'lambda.min',
+            s = which.min(mod$lambda),
             type = "response")
   
   new_tags <-
@@ -178,9 +178,10 @@ fit_model <- function(sparse_mat, indices, tags, modfam) {
 #' @param cutoff What probability should be used as a cutoff for topic classification? Options are proportions between 0-1, or NULL to find an optimal cutoff based on model accuracy.
 #' @return a vector containing the cutoff used and model accuracy at that cutoff
 check_model <- function(mod, indices, tags, modfam, xdat, cutoff) {
+  
   predictions <-
     stats::predict(mod,
-            s = 'lambda.min',
+            s = which.min(mod$lambda),
             newx = xdat[indices, ],
             type = "response")
   if (is.null(cutoff)) {
