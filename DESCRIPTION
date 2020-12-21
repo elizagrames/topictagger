@@ -21,10 +21,10 @@ Description: Extracting and tagging metadata for evidence synthesis takes an ave
 Imports:
   doMC, 
   glmnet, 
-  litsearchr,
   Matrix,
   quanteda,
   SnowballC,
+  stopwords,
   tm
 License: GPL-3
 Encoding: UTF-8
@@ -36,3 +36,5 @@ Suggests:
     rmarkdown,
     topicmodels
 VignetteBuilder: knitr
+Depends: 
+    R (>= 2.10)
