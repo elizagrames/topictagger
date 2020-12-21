@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Eliza Grames and Neal Haddaway" />
+
+
+<title>Add topics to documents with topictagger</title>
+
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Add topics to documents with topictagger</h1>
+<h4 class="author">Eliza Grames and Neal Haddaway</h4>
+
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Extracting and tagging metadata for evidence synthesis, such as systematic maps or meta-analyses, is a time-consuming step in the synthesis pipeline. Metadata extraction takes an average of 25.3 days for systematic maps and 6 days for smaller-scale systematic reviews <a href="http://doi.org/10.1111/cobi.13231">(Haddaway and Westgate 2018)</a>. Since many types of metadata, such as location of study or primary outcome, also function as eligibility criteria to include studies in a synthesis, the total amount of time spent considering metadata for a systematic map could actually be upwards of 100 hours.</p>
+<p>topictagger partially automates the process of tagging metadata and document topics for evidence synthesis. Given a hierarchical ontology of relationships between entitites, a set of articles with known topics, or a set of terms associated with a topic, topictagger will tag metadata from an ontology or classify articles by probable topics (e.g. outcomes) and return probable topics and metadata tags for each article.</p>
+<p>In this vignette, we demonstrate the core functions of topictagger through a worked example of applying an ontology of insect conservation actions and biomes to a subset of a database of entomology studies exported from the <a href="https://entogem.github.io/">EntoGEM project</a>. The worked example draws from a subset of a <a href="https://insectconservation.github.io/">broader project</a> aiming to systematically map what insect conservation actions have been studied. Work on this project and development of topictagger was funded by the <a href="https://www.mistra.org/">Swedish Foundation for Strategic Environmental Research (Mistra)</a>.</p>
+<p>If you have questions, suggestions, or want to report issues with topictagger, please use the <a href="https://github.com/elizagrames/topictagger">topictagger GitHub repository</a>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(topictagger)</span></code></pre></div>
+</div>
+<div id="tag-all-documents-based-on-an-ontology-or-topic-scheme" class="section level1">
+<h1>Tag all documents based on an ontology or topic scheme</h1>
+<p>There are three primary ways that topictagger will assign classifications to an article: a ‘dictionary’ approach where it applies a known ontology, a training approach where it classifies new articles based on existing tags in a training dataset, and an unconstrained approach where topics contained in a database are unknown.</p>
+<p>In this first section, we use topictagger to classify our document set using two pre-established ontologies. This type of approach is best suited to when you have an ontology established by a group of experts that contains synonyms and nested definitions for entries, or are working with discrete classifications such as geopolitical entities or species names.</p>
+<div id="read-in-documents" class="section level2">
+<h2>Read in documents</h2>
+<p>First, we will read in the example documents stored in topictagger, which are a small set of 500 documents on insect populations and conservation. These articles come from the EntoGEM project, a systematic map to identify long-term studies of insect populations and biodiversity, and were initially identified and analysed as part of a concurrent project to rapidly assess gaps and clusters of knowledge on insect conservation actions as described in the Introduction. Each entry contains the title, abstract, keywords, authors, source (generally, an academic journal), year of publication, and other bibliographic data.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">data</span>(<span class="st">&quot;insect_gapmap&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;topictagger&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">t</span>(insect_gapmap[<span class="dv">1</span>, ]), <span class="st">&quot;pipe&quot;</span>)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="0%"></col>
+<col width="99%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">15925</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">title</td>
+<td align="left">Invertebrate seedbanks rehydration of soil from an unregulated river floodplain in the south-eastern U.S</td>
+</tr>
+<tr class="even">
+<td align="left">abstract</td>
+<td align="left">1. We investigated the responsiveness of aquatic invertebrates to rehydration of floodplain soil in a south-eastern U.S. river floodplain. Non-inundated soil divots containing invertebrate seedbanks were collected from three floodplain elevations with different inundation histories (inundated for 2, 38, and 78% of a year), and subjected to rehydration (experimental inundation) in aquaria for 10 weeks.2. Before rehydration, samples were collected to assess the initial density and composition of invertebrates in non-inundated soil at each elevation. After rehydration, benthic samples were collected biweekly and emergence of aquatic insects was collected weekly from aquaria.3. The surviving invertebrates were classified as aquatic, semi-aquatic and terrestrial. Some aquatic invertebrates survived the non-inundated period in an active state (e.g. Chironomidae and Ceratopogonidae), while others appeared to be dormant (e.g. Heptageniidae, microcrustaceans and Chironomidae). The response for several invertebrates (e.g. Chironominae, Oligochaeta, Collembola and terrestrial invertebrates) depended on the length of rehydration and inundation history.4. The capacity of aquatic invertebrates to survive and recover was greatest at the most frequently inundated site. Despite variation in floodplain environments, both active and dormant invertebrates persisting in non-inundated floodplain soil contributed to the floodplain assemblage during flooding. Thus, maintaining the connection between river and floodplain appears to be important in sustaining the invertebrate seedbank and its capacity to recover during inundation. River channelisation and regulation that severs this connection may result in a loss of diversity and abundance.</td>
+</tr>
+<tr class="odd">
+<td align="left">keywords</td>
+<td align="left">INVERTEBRATES and FLOODPLAINS and STREAM channelization and AQUARIUMS and ARTHROPODA and INVERTEBRATE communities and experimental inundation and floodplain and invertebrate dormancy and invertebrate seedbank and soil hydration</td>
+</tr>
+<tr class="even">
+<td align="left">authors</td>
+<td align="left">Tronstad, Lusha M. and Tronstad, Bryan P. and Benke, Arthur C.</td>
+</tr>
+<tr class="odd">
+<td align="left">source</td>
+<td align="left">Freshwater Biology</td>
+</tr>
+<tr class="even">
+<td align="left">year</td>
+<td align="left">2005</td>
+</tr>
+<tr class="odd">
+<td align="left">volume</td>
+<td align="left">50</td>
+</tr>
+<tr class="even">
+<td align="left">issue</td>
+<td align="left">4</td>
+</tr>
+<tr class="odd">
+<td align="left">startpage</td>
+<td align="left">646</td>
+</tr>
+<tr class="even">
+<td align="left">endpage</td>
+<td align="left">655</td>
+</tr>
+<tr class="odd">
+<td align="left">doi</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+<p>We only want to tag documents based on their titles, abstracts, and keywords, so we will create a character vector of those aspects of our documents</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>articles &lt;-</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="st">  </span><span class="kw">tolower</span>(</span>
+<span id="cb3-3"><a href="#cb3-3"></a>    <span class="kw">paste</span>(</span>
+<span id="cb3-4"><a href="#cb3-4"></a>      insect_gapmap<span class="op">$</span>title,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>      insect_gapmap<span class="op">$</span>abstract,</span>
+<span id="cb3-6"><a href="#cb3-6"></a>      insect_gapmap<span class="op">$</span>keywords,</span>
+<span id="cb3-7"><a href="#cb3-7"></a>      <span class="dt">sep =</span> <span class="st">&quot; ;;; &quot;</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>    )</span>
+<span id="cb3-9"><a href="#cb3-9"></a>  )</span>
+<span id="cb3-10"><a href="#cb3-10"></a>knitr<span class="op">::</span><span class="kw">kable</span>(articles[<span class="dv">1</span>], <span class="st">&quot;pipe&quot;</span>)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="100%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">x</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">invertebrate seedbanks rehydration of soil from an unregulated river floodplain in the south-eastern u.s ;;; 1. we investigated the responsiveness of aquatic invertebrates to rehydration of floodplain soil in a south-eastern u.s. river floodplain. non-inundated soil divots containing invertebrate seedbanks were collected from three floodplain elevations with different inundation histories (inundated for 2, 38, and 78% of a year), and subjected to rehydration (experimental inundation) in aquaria for 10 weeks.2. before rehydration, samples were collected to assess the initial density and composition of invertebrates in non-inundated soil at each elevation. after rehydration, benthic samples were collected biweekly and emergence of aquatic insects was collected weekly from aquaria.3. the surviving invertebrates were classified as aquatic, semi-aquatic and terrestrial. some aquatic invertebrates survived the non-inundated period in an active state (e.g. chironomidae and ceratopogonidae), while others appeared to be dormant (e.g. heptageniidae, microcrustaceans and chironomidae). the response for several invertebrates (e.g. chironominae, oligochaeta, collembola and terrestrial invertebrates) depended on the length of rehydration and inundation history.4. the capacity of aquatic invertebrates to survive and recover was greatest at the most frequently inundated site. despite variation in floodplain environments, both active and dormant invertebrates persisting in non-inundated floodplain soil contributed to the floodplain assemblage during flooding. thus, maintaining the connection between river and floodplain appears to be important in sustaining the invertebrate seedbank and its capacity to recover during inundation. river channelisation and regulation that severs this connection may result in a loss of diversity and abundance. ;;; invertebrates and floodplains and stream channelization and aquariums and arthropoda and invertebrate communities and experimental inundation and floodplain and invertebrate dormancy and invertebrate seedbank and soil hydration</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="construct-scheme" class="section level2">
+<h2>Construct scheme</h2>
+<p>We will now read in our two hierarchical lists that will form the basis of the dictionary. These are both partial ontologies in that they have relations to parent entries, but not to any other classes of items. Each object is a hierarchical list where the leftmost column represents the highest level of classification, and subsequent columns are nested within them.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">data</span>(<span class="st">&quot;biomes&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;topictagger&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(biomes, <span class="dv">10</span>), <span class="st">&quot;pipe&quot;</span>)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Environment</th>
+<th align="left">Biome</th>
+<th align="left">Synonyms</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Forest</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Forest</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">closed canopy</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">wooded areas</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Boreal forest</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">coniferous</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">pine</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">fire</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">spruce</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">taiga</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="kw">data</span>(<span class="st">&quot;conservation_actions&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;topictagger&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(conservation_actions), <span class="st">&quot;pipe&quot;</span>)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="10%"></col>
+<col width="9%"></col>
+<col width="25%"></col>
+<col width="36%"></col>
+<col width="8%"></col>
+<col width="4%"></col>
+<col width="4%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Approach</th>
+<th align="left">Class</th>
+<th align="left">Strategy</th>
+<th align="left">Tactic</th>
+<th align="left">Tasks</th>
+<th align="left">Sub.tasks</th>
+<th align="left">Specifics</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Land/water protection</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Site/area protection</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">designate conservation reserves using best practices</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">prioritize vulnerable sites</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">off-shore islands</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">incorporate phylogeography into selection of areas for conservation reserves</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<p>We have set our objects up in this way because it is easy for humans to read and interpret the data this way in a spreadsheet. It is not, however, the best way to work with the data in R, so we need to convert this human-readable format into something more useful. We can use the function fill_rows to match the child entries in our dataset to their parents.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>biomes &lt;-<span class="st"> </span><span class="kw">fill_rows</span>(biomes)</span>
+<span id="cb6-2"><a href="#cb6-2"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(biomes, <span class="dv">10</span>), <span class="st">&quot;pipe&quot;</span>)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Environment</th>
+<th align="left">Biome</th>
+<th align="left">Synonyms</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Forest</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Forest</td>
+<td align="left">Forest</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Forest</td>
+<td align="left">Forest</td>
+<td align="left">closed canopy</td>
+</tr>
+<tr class="even">
+<td align="left">Forest</td>
+<td align="left">Forest</td>
+<td align="left">wooded areas</td>
+</tr>
+<tr class="odd">
+<td align="left">Forest</td>
+<td align="left">Boreal forest</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Forest</td>
+<td align="left">Boreal forest</td>
+<td align="left">coniferous</td>
+</tr>
+<tr class="odd">
+<td align="left">Forest</td>
+<td align="left">Boreal forest</td>
+<td align="left">pine</td>
+</tr>
+<tr class="even">
+<td align="left">Forest</td>
+<td align="left">Boreal forest</td>
+<td align="left">fire</td>
+</tr>
+<tr class="odd">
+<td align="left">Forest</td>
+<td align="left">Boreal forest</td>
+<td align="left">spruce</td>
+</tr>
+<tr class="even">
+<td align="left">Forest</td>
+<td align="left">Boreal forest</td>
+<td align="left">taiga</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a></span>
+<span id="cb7-2"><a href="#cb7-2"></a>conservation_actions &lt;-<span class="st"> </span><span class="kw">fill_rows</span>(conservation_actions)</span>
+<span id="cb7-3"><a href="#cb7-3"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(conservation_actions), <span class="st">&quot;pipe&quot;</span>)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="10%"></col>
+<col width="9%"></col>
+<col width="25%"></col>
+<col width="36%"></col>
+<col width="8%"></col>
+<col width="4%"></col>
+<col width="4%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Approach</th>
+<th align="left">Class</th>
+<th align="left">Strategy</th>
+<th align="left">Tactic</th>
+<th align="left">Tasks</th>
+<th align="left">Sub.tasks</th>
+<th align="left">Specifics</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Land/water protection</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Land/water protection</td>
+<td align="left">Site/area protection</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Land/water protection</td>
+<td align="left">Site/area protection</td>
+<td align="left">designate conservation reserves using best practices</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Land/water protection</td>
+<td align="left">Site/area protection</td>
+<td align="left">designate conservation reserves using best practices</td>
+<td align="left">prioritize vulnerable sites</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Land/water protection</td>
+<td align="left">Site/area protection</td>
+<td align="left">designate conservation reserves using best practices</td>
+<td align="left">prioritize vulnerable sites</td>
+<td align="left">off-shore islands</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Land/water protection</td>
+<td align="left">Site/area protection</td>
+<td align="left">designate conservation reserves using best practices</td>
+<td align="left">incorporate phylogeography into selection of areas for conservation reserves</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+<p>Now that our schemes are in the expected format, we can convert them to nested dictionary entries. To do that, we are going to use the function create_dictionary. It iteratively loops through our object from the lowest-level descendants to the first-order parents and constructs a hierarchical, nested list of named lists.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>biome_ontology &lt;-<span class="st"> </span><span class="kw">create_dictionary</span>(biomes, </span>
+<span id="cb8-2"><a href="#cb8-2"></a>                                    <span class="dt">return_dictionary =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb8-3"><a href="#cb8-3"></a></span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="kw">head</span>(biome_ontology<span class="op">$</span><span class="st">`</span><span class="dt">Artificial - Aquatic</span><span class="st">`</span>)</span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="co">#&gt; Dictionary object with 6 primary key entries and 3 nested levels.</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="co">#&gt; - [Artificial - Aquatic]:</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#&gt;   - artificial - aquatic</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="co">#&gt; - [Water Storage Areas [over 8 ha]]:</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a><span class="co">#&gt;   - [Water Storage Areas [over 8 ha]]:</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a><span class="co">#&gt;     - [Water Storage Areas [over 8 ha]]:</span></span>
+<span id="cb8-11"><a href="#cb8-11"></a><span class="co">#&gt;       - water storage areas</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a><span class="co">#&gt;     - [reservoir]:</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a><span class="co">#&gt;       - reservoir</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a><span class="co">#&gt;     - [barrage]:</span></span>
+<span id="cb8-15"><a href="#cb8-15"></a><span class="co">#&gt;       - barrage</span></span>
+<span id="cb8-16"><a href="#cb8-16"></a><span class="co">#&gt;     - [dam]:</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a><span class="co">#&gt;       - dam</span></span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="co">#&gt;     - [impoundment]:</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a><span class="co">#&gt;       - impoundment</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a><span class="co">#&gt; - [Ponds [below 8 ha]]:</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a><span class="co">#&gt;   - [Ponds [below 8 ha]]:</span></span>
+<span id="cb8-22"><a href="#cb8-22"></a><span class="co">#&gt;     - [Ponds [below 8 ha]]:</span></span>
+<span id="cb8-23"><a href="#cb8-23"></a><span class="co">#&gt;       - ponds [below 8 ha]</span></span>
+<span id="cb8-24"><a href="#cb8-24"></a><span class="co">#&gt;     - [farm pond]:</span></span>
+<span id="cb8-25"><a href="#cb8-25"></a><span class="co">#&gt;       - farm pond</span></span>
+<span id="cb8-26"><a href="#cb8-26"></a><span class="co">#&gt;     - [stock pond]:</span></span>
+<span id="cb8-27"><a href="#cb8-27"></a><span class="co">#&gt;       - stock pond</span></span>
+<span id="cb8-28"><a href="#cb8-28"></a><span class="co">#&gt;     - [small tank]:</span></span>
+<span id="cb8-29"><a href="#cb8-29"></a><span class="co">#&gt;       - small tank</span></span>
+<span id="cb8-30"><a href="#cb8-30"></a><span class="co">#&gt; - [Aquaculture Ponds]:</span></span>
+<span id="cb8-31"><a href="#cb8-31"></a><span class="co">#&gt;   - [Aquaculture Ponds]:</span></span>
+<span id="cb8-32"><a href="#cb8-32"></a><span class="co">#&gt;     - [Aquaculture Ponds]:</span></span>
+<span id="cb8-33"><a href="#cb8-33"></a><span class="co">#&gt;       - aquaculture ponds</span></span>
+<span id="cb8-34"><a href="#cb8-34"></a><span class="co">#&gt;     - [fish pond]:</span></span>
+<span id="cb8-35"><a href="#cb8-35"></a><span class="co">#&gt;       - fish pond</span></span>
+<span id="cb8-36"><a href="#cb8-36"></a><span class="co">#&gt;     - [shrimp pond]:</span></span>
+<span id="cb8-37"><a href="#cb8-37"></a><span class="co">#&gt;       - shrimp pond</span></span>
+<span id="cb8-38"><a href="#cb8-38"></a><span class="co">#&gt; - [Salt Exploitation Sites]:</span></span>
+<span id="cb8-39"><a href="#cb8-39"></a><span class="co">#&gt;   - [Salt Exploitation Sites]:</span></span>
+<span id="cb8-40"><a href="#cb8-40"></a><span class="co">#&gt;     - [Salt Exploitation Sites]:</span></span>
+<span id="cb8-41"><a href="#cb8-41"></a><span class="co">#&gt;       - salt exploitation sites</span></span>
+<span id="cb8-42"><a href="#cb8-42"></a><span class="co">#&gt;     - [salt pan]:</span></span>
+<span id="cb8-43"><a href="#cb8-43"></a><span class="co">#&gt;       - salt pan</span></span>
+<span id="cb8-44"><a href="#cb8-44"></a><span class="co">#&gt; - [Excavations (open)]:</span></span>
+<span id="cb8-45"><a href="#cb8-45"></a><span class="co">#&gt;   - [Excavations (open)]:</span></span>
+<span id="cb8-46"><a href="#cb8-46"></a><span class="co">#&gt;     - [Excavations (open)]:</span></span>
+<span id="cb8-47"><a href="#cb8-47"></a><span class="co">#&gt;       - excavations (open)</span></span>
+<span id="cb8-48"><a href="#cb8-48"></a><span class="co">#&gt;     - [gravel]:</span></span>
+<span id="cb8-49"><a href="#cb8-49"></a><span class="co">#&gt;       - gravel</span></span>
+<span id="cb8-50"><a href="#cb8-50"></a><span class="co">#&gt;     - [brick]:</span></span>
+<span id="cb8-51"><a href="#cb8-51"></a><span class="co">#&gt;       - brick</span></span>
+<span id="cb8-52"><a href="#cb8-52"></a><span class="co">#&gt;     - [clay pit]:</span></span>
+<span id="cb8-53"><a href="#cb8-53"></a><span class="co">#&gt;       - clay pit</span></span>
+<span id="cb8-54"><a href="#cb8-54"></a><span class="co">#&gt;     - [borrow pit]:</span></span>
+<span id="cb8-55"><a href="#cb8-55"></a><span class="co">#&gt;       - borrow pit</span></span>
+<span id="cb8-56"><a href="#cb8-56"></a><span class="co">#&gt;     - [mining pool]:</span></span>
+<span id="cb8-57"><a href="#cb8-57"></a><span class="co">#&gt;       - mining pool</span></span>
+<span id="cb8-58"><a href="#cb8-58"></a></span>
+<span id="cb8-59"><a href="#cb8-59"></a>action_ontology &lt;-<span class="st"> </span><span class="kw">create_dictionary</span>(conservation_actions, </span>
+<span id="cb8-60"><a href="#cb8-60"></a>                    <span class="dt">return_dictionary =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb8-61"><a href="#cb8-61"></a></span>
+<span id="cb8-62"><a href="#cb8-62"></a><span class="kw">head</span>(action_ontology<span class="op">$</span><span class="st">`</span><span class="dt">Law &amp; policy</span><span class="st">`</span><span class="op">$</span><span class="st">`</span><span class="dt">Private sector standards &amp; codes</span><span class="st">`</span>)</span>
+<span id="cb8-63"><a href="#cb8-63"></a><span class="co">#&gt; Dictionary object with 1 primary key entry and 5 nested levels.</span></span>
+<span id="cb8-64"><a href="#cb8-64"></a><span class="co">#&gt; - [Private sector standards &amp; codes]:</span></span>
+<span id="cb8-65"><a href="#cb8-65"></a><span class="co">#&gt;   - [Private sector standards &amp; codes]:</span></span>
+<span id="cb8-66"><a href="#cb8-66"></a><span class="co">#&gt;     - private sector standards</span></span>
+<span id="cb8-67"><a href="#cb8-67"></a><span class="co">#&gt;   - [adopt industry certification schemes for insect-friendly practices]:</span></span>
+<span id="cb8-68"><a href="#cb8-68"></a><span class="co">#&gt;     - [adopt industry certification schemes for insect-friendly practices]:</span></span>
+<span id="cb8-69"><a href="#cb8-69"></a><span class="co">#&gt;       - [adopt industry certification schemes for insect-friendly practices1]:</span></span>
+<span id="cb8-70"><a href="#cb8-70"></a><span class="co">#&gt;         - adopt industry certification schemes</span></span>
+<span id="cb8-71"><a href="#cb8-71"></a><span class="co">#&gt;       - [adopt industry certification schemes for insect-friendly practices2]:</span></span>
+<span id="cb8-72"><a href="#cb8-72"></a><span class="co">#&gt;         - insect-friendly practices</span></span>
+<span id="cb8-73"><a href="#cb8-73"></a><span class="co">#&gt;       - [certify responsible forest management]:</span></span>
+<span id="cb8-74"><a href="#cb8-74"></a><span class="co">#&gt;         - [certify responsible forest management]:</span></span>
+<span id="cb8-75"><a href="#cb8-75"></a><span class="co">#&gt;           - certify responsible forest management</span></span>
+<span id="cb8-76"><a href="#cb8-76"></a><span class="co">#&gt;       - [certify farmers growing shade coffee]:</span></span>
+<span id="cb8-77"><a href="#cb8-77"></a><span class="co">#&gt;         - [certify farmers growing shade coffee]:</span></span>
+<span id="cb8-78"><a href="#cb8-78"></a><span class="co">#&gt;           - certify farmers growing shade coffee</span></span>
+<span id="cb8-79"><a href="#cb8-79"></a><span class="co">#&gt;       - [assure the legality of forest products]:</span></span>
+<span id="cb8-80"><a href="#cb8-80"></a><span class="co">#&gt;         - [assure the legality of forest products]:</span></span>
+<span id="cb8-81"><a href="#cb8-81"></a><span class="co">#&gt;           - forest products</span></span></code></pre></div>
+</div>
+<div id="tag-documents-using-standardized-scheme" class="section level2">
+<h2>Tag documents using standardized scheme</h2>
+<p>Now that we have our set of documents read in and our schemes prepped, we can automatically add tags to the documents based on our classification schemes.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>actions &lt;-<span class="st"> </span><span class="kw">tag_strictly</span>(<span class="dt">doc =</span> articles,</span>
+<span id="cb9-2"><a href="#cb9-2"></a>                        <span class="dt">scheme =</span> action_ontology,</span>
+<span id="cb9-3"><a href="#cb9-3"></a>                        <span class="dt">allow_multiple =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="kw">head</span>(actions[<span class="op">!</span><span class="kw">is.na</span>(actions)])</span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="co">#&gt; [1] &quot;Land/water management.Site/area management.Site/area management.manage energy infrastructure to reduce harm to invertebrates.manage energy infrastructure to reduce harm to invertebrates&quot;                           </span></span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="co">#&gt; [2] &quot;Land/water management.Site/area management.Site/area management.incorporate insect conservation into urban planning.incorporate insect conservation into urban planning&quot;                                             </span></span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="co">#&gt; [3] &quot;Land/water management.Site/area management.Site/area management.reduce pesticide contamination of insect habitats.reduce pesticide contamination of insect habitats&quot;                                                 </span></span>
+<span id="cb9-8"><a href="#cb9-8"></a><span class="co">#&gt; [4] &quot;Law &amp; policy.Private sector standards &amp; codes.Private sector standards &amp; codes.adopt industry certification schemes for insect-friendly practices.adopt industry certification schemes for insect-friendly practices&quot;</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a><span class="co">#&gt; [5] &quot;Land/water management.Site/area management.Site/area management.manage energy infrastructure to reduce harm to invertebrates.manage energy infrastructure to reduce harm to invertebrates&quot;                           </span></span>
+<span id="cb9-10"><a href="#cb9-10"></a><span class="co">#&gt; [6] &quot;Species management.Species recovery.Species recovery.translocate individuals to introduce or reintroduce populations.translocate individuals to introduce or reintroduce populations&quot;</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a></span>
+<span id="cb9-12"><a href="#cb9-12"></a>habitats &lt;-<span class="st"> </span><span class="kw">tag_strictly</span>(<span class="dt">doc =</span> articles,</span>
+<span id="cb9-13"><a href="#cb9-13"></a>                         <span class="dt">scheme =</span> biome_ontology,</span>
+<span id="cb9-14"><a href="#cb9-14"></a>                         <span class="dt">allow_multiple =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb9-15"><a href="#cb9-15"></a><span class="kw">head</span>(habitats[<span class="op">!</span><span class="kw">is.na</span>(habitats)])</span>
+<span id="cb9-16"><a href="#cb9-16"></a><span class="co">#&gt; [1] &quot;Artificial - Terrestrial.Urban Areas.Urban Areas.Urban Areas&quot;                   </span></span>
+<span id="cb9-17"><a href="#cb9-17"></a><span class="co">#&gt; [2] &quot;Forest.Forest&quot;                                                                  </span></span>
+<span id="cb9-18"><a href="#cb9-18"></a><span class="co">#&gt; [3] &quot;Artificial - Terrestrial.Urban Areas.Urban Areas.Urban Areas&quot;                   </span></span>
+<span id="cb9-19"><a href="#cb9-19"></a><span class="co">#&gt; [4] &quot;Artificial - Terrestrial.Plantations.Plantations.coffee&quot;                        </span></span>
+<span id="cb9-20"><a href="#cb9-20"></a><span class="co">#&gt; [5] &quot;Forest.Forest&quot;                                                                  </span></span>
+<span id="cb9-21"><a href="#cb9-21"></a><span class="co">#&gt; [6] &quot;Forest.Subtropical/tropical dry forest.Subtropical/tropical dry forest.prosopis&quot;</span></span></code></pre></div>
+<p>Because our tags are hierarchical, looking at the raw output is not the most informative and we actually want to extract information for each level of our ontology. We can use extract_levels to create a list object where each entry is the tags for each document at that level of the ontology. If we supply it with the number of levels to extract, it will only extract tags at the specified level(s), or we can let the function export all the levels at which it has tagged several entries if we set n.levels to NULL.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>tags &lt;-<span class="st"> </span><span class="kw">extract_levels</span>(actions, <span class="dt">n.levels =</span> <span class="dv">2</span>)</span>
+<span id="cb10-2"><a href="#cb10-2"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">sort</span>(<span class="kw">table</span>(<span class="kw">unlist</span>(tags)), <span class="dt">decreasing =</span> T), <span class="st">&quot;pipe&quot;</span>)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Var1</th>
+<th align="right">Freq</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Site/area management</td>
+<td align="right">174</td>
+</tr>
+<tr class="even">
+<td align="left">Species recovery</td>
+<td align="right">32</td>
+</tr>
+<tr class="odd">
+<td align="left">Habitat &amp; natural process restoration</td>
+<td align="right">28</td>
+</tr>
+<tr class="even">
+<td align="left">Site/area protection</td>
+<td align="right">24</td>
+</tr>
+<tr class="odd">
+<td align="left">Species management</td>
+<td align="right">17</td>
+</tr>
+<tr class="even">
+<td align="left">Resource &amp; habitat protection</td>
+<td align="right">12</td>
+</tr>
+<tr class="odd">
+<td align="left">Private sector standards &amp; codes</td>
+<td align="right">10</td>
+</tr>
+<tr class="even">
+<td align="left">Ex-situ conservation</td>
+<td align="right">7</td>
+</tr>
+<tr class="odd">
+<td align="left">Land/water management</td>
+<td align="right">5</td>
+</tr>
+<tr class="even">
+<td align="left">Invasive/problematic species control</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
+<td align="left">Non-monetary values</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">Policies and regulations</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Training</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a></span>
+<span id="cb11-2"><a href="#cb11-2"></a>habitat_tags &lt;-<span class="st"> </span><span class="kw">extract_levels</span>(habitats, <span class="dt">n.levels =</span> <span class="dv">1</span>)</span>
+<span id="cb11-3"><a href="#cb11-3"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">sort</span>(<span class="kw">table</span>(<span class="kw">unlist</span>(habitat_tags)), <span class="dt">decreasing =</span> T), <span class="st">&quot;pipe&quot;</span>)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Var1</th>
+<th align="right">Freq</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Forest</td>
+<td align="right">108</td>
+</tr>
+<tr class="even">
+<td align="left">Artificial - Terrestrial</td>
+<td align="right">32</td>
+</tr>
+<tr class="odd">
+<td align="left">Grassland</td>
+<td align="right">25</td>
+</tr>
+<tr class="even">
+<td align="left">Savanna</td>
+<td align="right">14</td>
+</tr>
+<tr class="odd">
+<td align="left">Artificial - Aquatic</td>
+<td align="right">12</td>
+</tr>
+<tr class="even">
+<td align="left">Shrubland</td>
+<td align="right">5</td>
+</tr>
+<tr class="odd">
+<td align="left">Desert</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">Wetlands (inland)</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="tag-new-documents-based-on-existing-document-tags" class="section level1">
+<h1>Tag new documents based on existing document tags</h1>
+<div id="read-in-all-documents" class="section level2">
+<h2>Read in all documents</h2>
+<p>First, we read in the documents that have already been manually screened and had tags added to them. We are going to work with the tagged documents from the previous example and use the documents that have not been tagged as our ‘new’ documents to add tags to. We assume that they did not match the dictionary terms, but may still belong to one of our classifications.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># extract the highest level of the conservation action ontology tags</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>level1_tags &lt;-<span class="st"> </span><span class="kw">extract_levels</span>(actions, <span class="dt">n.levels =</span> <span class="dv">1</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb12-3"><a href="#cb12-3"></a></span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="co"># separate our documents into known tags and unknown tags</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>tagged_documents &lt;-<span class="st"> </span>articles[<span class="kw">which</span>(<span class="op">!</span><span class="kw">is.na</span>(level1_tags))]</span>
+<span id="cb12-6"><a href="#cb12-6"></a>unknown_documents &lt;-<span class="st"> </span>articles[<span class="kw">which</span>(<span class="kw">is.na</span>(level1_tags))]</span></code></pre></div>
+<p>We also need to add some noise to our ‘known’ tags so that our new documents have the option of being classified as not belonging to any of our existing tags. For this, we can pull in a set of similar articles that are assumed to not belong to any of our topics. In this case, we are adding a set of agricultural pest studies, which will contain terms related to insects and habitats but will almost certainly not be advocating for conservation actions.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">data</span>(<span class="st">&quot;pest_articles&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;topictagger&quot;</span>)</span>
+<span id="cb13-2"><a href="#cb13-2"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">t</span>(pest_articles[<span class="dv">1</span>, ]), <span class="st">&quot;pipe&quot;</span>)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="0%"></col>
+<col width="99%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">132</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">title</td>
+<td align="left">A novel approach for exploring climatic factors limiting current pest distributions A case study of Bemisia tabaci in north-west Europe and assessment of potential future establishment in the United Kingdom under climate change</td>
+</tr>
+<tr class="even">
+<td align="left">abstract</td>
+<td align="left">Bemisia tabaci (the tobacco whitefly) is an important agricultural pest of global significance primarily because of its ability to transmit multiple damaging plant viruses. To date, UK outbreaks of the whitefly have been restricted to glasshouses and there are no records of the whitefly establishing outdoors during the summer. This is despite the fact that annual degree-day models (that estimate accumulated warmth over the year above the development threshold), indicate that B. tabaci has the thermal potential for multiple summer generations in the UK. A set of 49 climate indices calculated using the present day climate (19862015) were therefore compared between the UK and the south of France, where B. tabaci is able to establish outdoors, to identify the factors limiting its establishment. The number of cold days and nights in summer, as well as the time spent within the whiteflys optimum temperature range, were most significantly different between the two areas. These indices may impact the development of B. tabaci and offer an explanation for the absence of the whitefly outdoors in the UK during the summer. Further analyses undertaken with climate projections suggest that in a 24C warmer world this pest could pose a risk to outdoor UK crops in July and August. A clear south-north gradient can be demonstrated for these indices. Linking any possible northwards spread of B. tabaci populations outdoors in France with changes in these indices could therefore provide an important indicator of any change in the risks of outdoor populations of this species developing in the UK. The effectiveness of climate indices in pest risk analysis is compellingly demonstrated, and it is recommended that in-depth comparisons of climatic indices between areas of pest presence and absence are conducted in other situations where forecasting the risks of pest establishment are complex and challenging. [ABSTRACT FROM AUTHOR] Copyright of PLoS ONE is the property of Public Library of Science and its content may not be copied or emailed to multiple sites or posted to a listserv without the copyright holder’s express written permission. However, users may print, download, or email articles for individual use. This abstract may be abridged. No warranty is given about the accuracy of the copy. Users should refer to the original published version of the material for the full abstract. (Copyright applies to all Abstracts.)</td>
+</tr>
+<tr class="odd">
+<td align="left">keywords</td>
+<td align="left">SWEETPOTATO whitefly and CLIMATE change and CURRENT distribution and AGRICULTURAL pests and PLANT viruses and PESTS and PHYTOSANITATION and GREAT Britain and Atmospheric science and Biology and life sciences and Body temperature and Climate change and Climate modeling and Climatology and Cryptic speciation and Earth sciences and Europe and European Union and Evolutionary biology and Evolutionary processes and France and Geographical locations and Medicine and health sciences and People and places and Physiological parameters and Physiology and Research and analysis methods and Research Article and Seasons and Simulation and modeling and Speciation and Summer and United Kingdom and Wales</td>
+</tr>
+<tr class="even">
+<td align="left">authors</td>
+<td align="left">Bradshaw, Catherine D. and Hemming, Deborah and Baker, Richard and Everatt, Matthew and Eyre, Dominic and Korycinska, Anastasia</td>
+</tr>
+<tr class="odd">
+<td align="left">source</td>
+<td align="left">PLoS ONE</td>
+</tr>
+<tr class="even">
+<td align="left">year</td>
+<td align="left">2019</td>
+</tr>
+<tr class="odd">
+<td align="left">volume</td>
+<td align="left">14</td>
+</tr>
+<tr class="even">
+<td align="left">issue</td>
+<td align="left">8</td>
+</tr>
+<tr class="odd">
+<td align="left">startpage</td>
+<td align="left">1</td>
+</tr>
+<tr class="even">
+<td align="left">endpage</td>
+<td align="left">18</td>
+</tr>
+<tr class="odd">
+<td align="left">doi</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>pest_articles &lt;-</span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="st">  </span><span class="kw">tolower</span>(</span>
+<span id="cb14-3"><a href="#cb14-3"></a>    <span class="kw">paste</span>(</span>
+<span id="cb14-4"><a href="#cb14-4"></a>      pest_articles<span class="op">$</span>title,</span>
+<span id="cb14-5"><a href="#cb14-5"></a>      pest_articles<span class="op">$</span>abstract,</span>
+<span id="cb14-6"><a href="#cb14-6"></a>      pest_articles<span class="op">$</span>keywords,</span>
+<span id="cb14-7"><a href="#cb14-7"></a>      <span class="dt">sep =</span> <span class="st">&quot; ;;; &quot;</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a>    )</span>
+<span id="cb14-9"><a href="#cb14-9"></a>  )[<span class="dv">1</span><span class="op">:</span><span class="dv">250</span>]</span>
+<span id="cb14-10"><a href="#cb14-10"></a></span>
+<span id="cb14-11"><a href="#cb14-11"></a>tagged_documents &lt;-<span class="st"> </span><span class="kw">append</span>(tagged_documents, pest_articles)</span>
+<span id="cb14-12"><a href="#cb14-12"></a></span>
+<span id="cb14-13"><a href="#cb14-13"></a>level1_tags &lt;-<span class="st"> </span><span class="kw">append</span>(level1_tags[<span class="op">!</span><span class="kw">is.na</span>(level1_tags)], </span>
+<span id="cb14-14"><a href="#cb14-14"></a>                      <span class="kw">rep</span>(<span class="st">&quot;noise&quot;</span>, <span class="kw">length</span>(pest_articles)))</span></code></pre></div>
+</div>
+<div id="get-document-tags-for-new-models" class="section level2">
+<h2>Get document tags for new models</h2>
+<p>We are now ready to run a model to classify the unknown documents as either belonging to one of our topics or being noise. Because this is a rather small set of articles as an example, we need to ignore some of our dictionary tags because there are not enough observations to train the model on. For example, only one article in our subset is tagged as ‘Education &amp; awareness’ and only two articles are tagged as ‘Livelihood, economic &amp; other incentives’.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">table</span>(level1_tags), <span class="st">&quot;pipe&quot;</span>)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">level1_tags</th>
+<th align="right">Freq</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Education &amp; awareness</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">Land/water management</td>
+<td align="right">210</td>
+</tr>
+<tr class="odd">
+<td align="left">Land/water protection</td>
+<td align="right">36</td>
+</tr>
+<tr class="even">
+<td align="left">Law &amp; policy</td>
+<td align="right">11</td>
+</tr>
+<tr class="odd">
+<td align="left">Livelihood, economic &amp; other incentives</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">noise</td>
+<td align="right">250</td>
+</tr>
+<tr class="odd">
+<td align="left">Species management</td>
+<td align="right">56</td>
+</tr>
+</tbody>
+</table>
+<p>We could drop those observations from our dataset, or, because they are on similar themes we can create a new tag and group them together. The output will be less specific than we would like, but it avoids throwing away our data. We will call this new group ‘Human dimensions’.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>human_dimensions &lt;-<span class="st"> </span><span class="kw">c</span>(</span>
+<span id="cb16-2"><a href="#cb16-2"></a>  <span class="st">&quot;Livelihood, economic &amp; other incentives&quot;</span>,</span>
+<span id="cb16-3"><a href="#cb16-3"></a>  <span class="st">&quot;Education &amp; awareness&quot;</span>,</span>
+<span id="cb16-4"><a href="#cb16-4"></a>  <span class="st">&quot;Law &amp; policy&quot;</span>,</span>
+<span id="cb16-5"><a href="#cb16-5"></a>  <span class="st">&quot;Land/water protection&quot;</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>)</span>
+<span id="cb16-7"><a href="#cb16-7"></a></span>
+<span id="cb16-8"><a href="#cb16-8"></a>level1_tags[level1_tags <span class="op">%in%</span><span class="st"> </span>human_dimensions] &lt;-</span>
+<span id="cb16-9"><a href="#cb16-9"></a><span class="st">  &quot;Human dimensions&quot;</span> </span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>smart_tags &lt;-<span class="st"> </span><span class="kw">tag_smartly</span>(<span class="dt">new_documents =</span> unknown_documents,</span>
+<span id="cb17-2"><a href="#cb17-2"></a>                          <span class="dt">tagged_documents =</span> tagged_documents,</span>
+<span id="cb17-3"><a href="#cb17-3"></a>                          <span class="dt">tags =</span> level1_tags)</span></code></pre></div>
+<p>This is not a great example because we have such small sample sizes that the model is not able to learn enough from the training dataset to make good predictions so it defaults to assuming all of our documents are noise because that is the most common category. We recommend having several hundred articles for each category if using tag_smartly with a multinomial response, or having fewer categories to predict (e.g. inclusion/exclusion of an article) if a dataset is relatively small.</p>
+</div>
+</div>
+<div id="tag-all-documents-with-no-known-topics" class="section level1">
+<h1>Tag all documents with no known topics</h1>
+<p>If we did not know anything about the articles we are analysing, we might want to first start with some simple topic models to identify possible topics that emerge in the dataset. For this, we can use tag_freely to do some preliminary exploration. To do more advanced topic modeling, you should use a different package (e.g. topicmodels).</p>
+<div id="assign-documents-to-topics" class="section level2">
+<h2>Assign documents to topics</h2>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>topics &lt;-</span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="st">  </span><span class="kw">tag_freely</span>(</span>
+<span id="cb18-3"><a href="#cb18-3"></a>    <span class="kw">append</span>(articles, pest_articles),</span>
+<span id="cb18-4"><a href="#cb18-4"></a>    <span class="dt">k =</span> <span class="dv">3</span>,</span>
+<span id="cb18-5"><a href="#cb18-5"></a>    <span class="dt">ngrams =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb18-6"><a href="#cb18-6"></a>    <span class="dt">n_terms =</span> <span class="dv">20</span></span>
+<span id="cb18-7"><a href="#cb18-7"></a>  )</span>
+<span id="cb18-8"><a href="#cb18-8"></a></span>
+<span id="cb18-9"><a href="#cb18-9"></a><span class="co"># How are our documents distributed across topics?</span></span>
+<span id="cb18-10"><a href="#cb18-10"></a><span class="kw">barplot</span>(</span>
+<span id="cb18-11"><a href="#cb18-11"></a>  <span class="kw">table</span>(topics[[<span class="dv">1</span>]]),</span>
+<span id="cb18-12"><a href="#cb18-12"></a>  <span class="dt">las =</span> <span class="dv">1</span>,</span>
+<span id="cb18-13"><a href="#cb18-13"></a>  <span class="dt">col =</span> <span class="st">&quot;white&quot;</span>,</span>
+<span id="cb18-14"><a href="#cb18-14"></a>  <span class="dt">xlab =</span> <span class="st">&quot;Topics&quot;</span>,</span>
+<span id="cb18-15"><a href="#cb18-15"></a>  <span class="dt">main =</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb18-16"><a href="#cb18-16"></a>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="explore-topics" class="section level2">
+<h2>Explore topics</h2>
+<p>The second item in the list is the key phrases associated with each topic. Even though we have only input a few hundred articles, we can still see topics emerging that we would expect based on our input data. For example, one of the topics with terms like “insect pests” and “natural enemies” likely corresponds to the “noise” of the pest articles and the other two topics seem to represent one cluster of studies on species in human-dominated environments (e.g. “invasive species”, “honey bees”, “agricultural land”) and one cluster on insects in more natural areas (e.g. “climate change”, “forest management”, “aquatic invertebrates”).</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>knitr<span class="op">::</span><span class="kw">kable</span>(topics[[<span class="dv">2</span>]], <span class="st">&quot;pipe&quot;</span>)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Topic 1</th>
+<th align="left">Topic 2</th>
+<th align="left">Topic 3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">urban_areas</td>
+<td align="left">species_richness</td>
+<td align="left">plant_pests</td>
+</tr>
+<tr class="even">
+<td align="left">species_abundance</td>
+<td align="left">climate_change</td>
+<td align="left">insect_pests</td>
+</tr>
+<tr class="odd">
+<td align="left">global_warming</td>
+<td align="left">species_diversity</td>
+<td align="left">natural_enemies</td>
+</tr>
+<tr class="even">
+<td align="left">significantly_higher</td>
+<td align="left">coarse_woody_debris</td>
+<td align="left">biological_control</td>
+</tr>
+<tr class="odd">
+<td align="left">population_growth</td>
+<td align="left">species_composition</td>
+<td align="left">pest_insects</td>
+</tr>
+<tr class="even">
+<td align="left">community_structure</td>
+<td align="left">land_use</td>
+<td align="left">population_dynamics</td>
+</tr>
+<tr class="odd">
+<td align="left">honey_bees</td>
+<td align="left">rare_species</td>
+<td align="left">developed_countries</td>
+</tr>
+<tr class="even">
+<td align="left">beneficial_insects</td>
+<td align="left">forest_management</td>
+<td align="left">developing_countries</td>
+</tr>
+<tr class="odd">
+<td align="left">invasive_species</td>
+<td align="left">protected_areas</td>
+<td align="left">wild_animals</td>
+</tr>
+<tr class="even">
+<td align="left">bacillus_thuringiensis</td>
+<td align="left">floral_resources</td>
+<td align="left">oecd_countries</td>
+</tr>
+<tr class="odd">
+<td align="left">aquatic_invertebrates</td>
+<td align="left">prescribed_burning</td>
+<td align="left">animal_ecology</td>
+</tr>
+<tr class="even">
+<td align="left">insect_herbivores</td>
+<td align="left">agricultural_landscapes</td>
+<td align="left">pest_control</td>
+</tr>
+<tr class="odd">
+<td align="left">agricultural_pests</td>
+<td align="left">dead_wood</td>
+<td align="left">united_states</td>
+</tr>
+<tr class="even">
+<td align="left">essential_oils</td>
+<td align="left">endangered_species</td>
+<td align="left">field_crops</td>
+</tr>
+<tr class="odd">
+<td align="left">fly_ash</td>
+<td align="left">common_species</td>
+<td align="left">north_america</td>
+</tr>
+<tr class="even">
+<td align="left">fruit_set</td>
+<td align="left">biodiversity_conservation</td>
+<td align="left">biological_resources</td>
+</tr>
+<tr class="odd">
+<td align="left">important_role</td>
+<td align="left">plant_species</td>
+<td align="left">apec_countries</td>
+</tr>
+<tr class="even">
+<td align="left">arthropod_communities</td>
+<td align="left">ecosystem_services</td>
+<td align="left">biological_control_agents</td>
+</tr>
+<tr class="odd">
+<td align="left">agricultural_intensification</td>
+<td align="left">first_time</td>
+<td align="left">population_density</td>
+</tr>
+<tr class="even">
+<td align="left">research_article</td>
+<td align="left">indicator_species</td>
+<td align="left">forest_trees</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
