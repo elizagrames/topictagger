@@ -1,9 +1,9 @@
 #' Extracts reasonable terms for topic modeling
 #' @description Given documents, extracts possible ngram terms to use for topic modeling.
 #' @param x a character vector of documents
-#' @param retain_stopwords logical: if TRUE, retains stopwords used in known terms
 #' @param known_phrases a character vector of stopwords to retain or phrases known to be relevant
 #' @param ngrams logical: if TRUE, only returns phrases of two words or more
+#' @param new_stopwords a character vector of additional, subject-specific terms to remove
 #' @export
 mine_terms <- function(x, known_phrases=NULL, ngrams=TRUE, new_stopwords=c()){
   publisher_terms <- c("study suggests", "results suggest", "multiple sites", "study area",

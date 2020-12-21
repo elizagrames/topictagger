@@ -4,7 +4,6 @@
 #' ontoloy to tag metadata hierarchically for each document.
 #' @param doc character: a vector of document texts to tag
 #' @param scheme a dictionary object or list containing an ontology or set of terms 
-#' @param enable_stemming logical: if TRUE, interpret lemmatized stems of words as synonymous (e.g. "burning" and "burned" are equivalent to "burn")
 #' @param allow_multiple logical: if TRUE, returns all matched metadata, else returns most frequent
 #' @export
 tag_strictly <- function(doc, scheme, allow_multiple=TRUE){

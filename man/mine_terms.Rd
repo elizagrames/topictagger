@@ -13,7 +13,7 @@ mine_terms(x, known_phrases = NULL, ngrams = TRUE, new_stopwords = c())
 
 \item{ngrams}{logical: if TRUE, only returns phrases of two words or more}
 
-\item{retain_stopwords}{logical: if TRUE, retains stopwords used in known terms}
+\item{new_stopwords}{a character vector of additional, subject-specific terms to remove}
 }
 \description{
 Given documents, extracts possible ngram terms to use for topic modeling.

@@ -12,7 +12,7 @@ fill_rows <- function(x){
       if(!is.na(x[i,j])){
         if(is.na(x[i,(j-1)])){
           parents <- x[1:i,(j-1)]
-          parent <- tail(parents[!is.na(parents)],1)
+          parent <- utils::tail(parents[!is.na(parents)],1)
           x[i,(j-1)] <- parent
         }
       }

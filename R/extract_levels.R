@@ -8,7 +8,7 @@ extract_levels <- function(x, n.levels = NULL) {
   if (is.null(n.levels)) {
     n.levels <-
       as.numeric(names(which.max(table(
-        unlist(lapply(actions, function(a) {
+        unlist(lapply(x, function(a) {
           length(strsplit(a, "\\.")[[1]])
         }))
       ))))

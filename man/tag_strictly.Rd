@@ -12,8 +12,6 @@ tag_strictly(doc, scheme, allow_multiple = TRUE)
 \item{scheme}{a dictionary object or list containing an ontology or set of terms}
 
 \item{allow_multiple}{logical: if TRUE, returns all matched metadata, else returns most frequent}
-
-\item{enable_stemming}{logical: if TRUE, interpret lemmatized stems of words as synonymous (e.g. "burning" and "burned" are equivalent to "burn")}
 }
 \description{
 Given a hierarchical ontology or
